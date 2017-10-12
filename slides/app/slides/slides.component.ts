@@ -74,6 +74,7 @@ export class SlidesComponent implements OnInit, AfterViewChecked, AfterViewInit,
     @Input('loop') loop: boolean;
     @Input('pageIndicators') pageIndicators: boolean;
     @Input('class') cssClass: string = '';
+    @Input('autoInit') autoInit: boolean = true;
     @Output() changed: EventEmitter<any> = new EventEmitter();
     @Output() finished: EventEmitter<any> = new EventEmitter();
     @Output('tap') tap: EventEmitter<gestures.GestureEventData> = new EventEmitter<gestures.GestureEventData>();
@@ -102,7 +103,6 @@ export class SlidesComponent implements OnInit, AfterViewChecked, AfterViewInit,
     }
 
     ngOnInit() {
-        console.log("## SC: NG INIT");
         this.loop = this.loop ? this.loop : false;
         this.pageIndicators = this.pageIndicators ? this.pageIndicators : false;
         this.pageWidth = this.pageWidth ? this.pageWidth : platform.screen.mainScreen.widthDIPs;
@@ -116,7 +116,7 @@ export class SlidesComponent implements OnInit, AfterViewChecked, AfterViewInit,
     }
 
     ngAfterViewChecked() {
-        if (!this.inited && this.slides.length > 0) {
+        if (this.autoInit && !this.inited && this.slides.length > 0) {
             this.init();
         }
     }
@@ -125,10 +125,8 @@ export class SlidesComponent implements OnInit, AfterViewChecked, AfterViewInit,
         app.off(app.orientationChangedEvent, this.onOrientationChanged, this);
     }
 
-    private init() {
-        console.log("## SC: init");
-
-        // loop through slides and setup height and widith
+    public init() {
+        // loop through slides and setup height and width
         this.slides.forEach((slide: SlideComponent) => {
             AbsoluteLayout.setLeft(slide.layout, this.pageWidth);
             slide.slideWidth = this.pageWidth;
@@ -170,7 +168,7 @@ export class SlidesComponent implements OnInit, AfterViewChecked, AfterViewInit,
 
             this.footerMarginTop = this.calculateFoorterMarginTop(this.pageHeight);
 
-            // loop through slides and setup height and widith
+            // loop through slides and setup height and width
             this.slides.forEach((slide: SlideComponent) => {
                 AbsoluteLayout.setLeft(slide.layout, this.pageWidth);
                 slide.slideWidth = this.pageWidth;
