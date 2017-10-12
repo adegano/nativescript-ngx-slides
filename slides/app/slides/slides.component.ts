@@ -79,6 +79,8 @@ export class SlidesComponent implements OnInit, AfterViewChecked, AfterViewInit,
     @Output() finished: EventEmitter<any> = new EventEmitter();
     @Output('tap') tap: EventEmitter<gestures.GestureEventData> = new EventEmitter<gestures.GestureEventData>();
 
+    /** If auto init is turned off this flag indicates when the slides are ready to be rendered */
+    private manualInitTriggered: boolean = false;
     private transitioning: boolean;
     private direction: direction = direction.none;
     private FOOTER_HEIGHT: number = 50;
@@ -116,8 +118,8 @@ export class SlidesComponent implements OnInit, AfterViewChecked, AfterViewInit,
     }
 
     ngAfterViewChecked() {
-        if (this.autoInit && !this.inited && this.slides.length > 0) {
-            this.init();
+        if ((this.manualInitTriggered || this.autoInit) && !this.inited && this.slides.length > 0) {
+            this._init();
         }
     }
 
@@ -126,6 +128,15 @@ export class SlidesComponent implements OnInit, AfterViewChecked, AfterViewInit,
     }
 
     public init() {
+        this.manualInitTriggered = true;
+    }
+
+    /**
+     * This method cannot be called directly from a using component but has to be called within ngAfterViewChecked().
+     *
+     * @private
+     */
+    private _init() {
         // loop through slides and setup height and width
         this.slides.forEach((slide: SlideComponent) => {
             AbsoluteLayout.setLeft(slide.layout, this.pageWidth);
@@ -339,7 +350,7 @@ export class SlidesComponent implements OnInit, AfterViewChecked, AfterViewInit,
                 //this.triggerStartEvent();
             } else if (args.state === gestures.GestureStateTypes.ended) {
                 deltaTime = Date.now() - startTime;
-                // if velocityScrolling is enabled then calculate the velocitty
+                // if velocityScrolling is enabled then calculate the velocity
 
                 // swiping left to right.
                 if (args.deltaX > (pageWidth / 3)) {
