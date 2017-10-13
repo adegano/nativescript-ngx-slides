@@ -21,7 +21,7 @@ import * as gestures from 'tns-core-modules/ui/gestures';
 import * as platform from 'tns-core-modules/platform';
 import * as AnimationModule from 'tns-core-modules/ui/animation';
 import {AnimationCurve} from 'tns-core-modules/ui/enums';
-import * as app from 'application';
+import * as app from 'tns-core-modules/application';
 import {AbsoluteLayout} from 'tns-core-modules/ui/layouts/absolute-layout';
 import {StackLayout} from 'tns-core-modules/ui/layouts/stack-layout';
 import {isNullOrUndefined} from "tns-core-modules/utils/types";
