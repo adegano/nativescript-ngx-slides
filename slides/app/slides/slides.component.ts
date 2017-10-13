@@ -24,6 +24,7 @@ import {AnimationCurve} from 'ui/enums';
 import * as app from 'application';
 import {AbsoluteLayout} from 'ui/layouts/absolute-layout';
 import {StackLayout} from 'ui/layouts/stack-layout';
+import {isNullOrUndefined} from "tns-core-modules/utils/types";
 
 export interface IIndicators {
     active: boolean;
@@ -64,7 +65,7 @@ enum cancellationReason {
     encapsulation: ViewEncapsulation.None
 })
 
-export class SlidesComponent implements OnInit, AfterViewChecked, AfterViewInit, OnDestroy {
+export class SlidesComponent implements OnInit, AfterViewInit, OnDestroy {
 
     @ContentChildren(forwardRef(() => SlideComponent)) slides: QueryList<SlideComponent>;
     @ViewChild('footer') footer: ElementRef;
@@ -89,9 +90,6 @@ export class SlidesComponent implements OnInit, AfterViewChecked, AfterViewInit,
     currentSlide: ISlideMap;
     _slideMap: ISlideMap[];
 
-    /** Is set to true after slides have been detected and the internal data structures have been initialized */
-    private inited: boolean = false;
-
     get hasNext(): boolean {
         return !!this.currentSlide && !!this.currentSlide.right;
     }
@@ -115,12 +113,9 @@ export class SlidesComponent implements OnInit, AfterViewChecked, AfterViewInit,
     }
 
     ngAfterViewInit() {
-    }
-
-    ngAfterViewChecked() {
-        if ((this.manualInitTriggered || this.autoInit) && !this.inited && this.slides.length > 0) {
+        this.slides.changes.subscribe(() => {
             this._init();
-        }
+        });
     }
 
     ngOnDestroy() {
@@ -137,12 +132,15 @@ export class SlidesComponent implements OnInit, AfterViewChecked, AfterViewInit,
      * @private
      */
     private _init() {
+        if (isNullOrUndefined(this.slides) || this.slides.length == 0 || (!this.manualInitTriggered && !this.autoInit)) {
+            return;
+        }
+
         // loop through slides and setup height and width
         this.slides.forEach((slide: SlideComponent) => {
             AbsoluteLayout.setLeft(slide.layout, this.pageWidth);
             slide.slideWidth = this.pageWidth;
             slide.slideHeight = this.pageHeight;
-
         });
 
         this.currentSlide = this.buildSlideMap(this.slides.toArray());
@@ -156,7 +154,6 @@ export class SlidesComponent implements OnInit, AfterViewChecked, AfterViewInit,
             this.buildFooter(this.slides.length);
             this.setActivePageIndicator(0);
         }
-        this.inited = true;
     }
 
     onOrientationChanged(args: app.OrientationChangedEventData) {
