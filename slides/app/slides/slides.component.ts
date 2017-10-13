@@ -108,13 +108,9 @@ export class SlidesComponent implements OnChanges, OnInit {
 	}
 
 	ngAfterViewInit() {
-		console.log('actualiza?');
-		//this.initializeSlides();
+
 		this.initializeSlides();
-    	this.slides.changes.subscribe(() => {
-    	console.log('actualizaer');
-   		this.initializeSlides();
-    });
+
 
 	}
 
@@ -124,9 +120,7 @@ export class SlidesComponent implements OnChanges, OnInit {
 		if (isNullOrUndefined(this.slides) || this.slides.length == 0 ) {
 		  return;
 	  }
-	  console.log('initializeSlides');
-	  console.log(this.slides.length);
-		// loop through slides and setup height and widith
+
 		this.slides.forEach((slide: SlideComponent) => {
 			AbsoluteLayout.setLeft(slide.layout, this.pageWidth);
 			slide.slideWidth = this.pageWidth;
@@ -262,10 +256,7 @@ export class SlidesComponent implements OnChanges, OnInit {
 
 		if (this.currentSlide.index === this.slides.length - 1) {
 			this.finished.next(null);
-			setTimeout(()=> {
-
-				this.initializeSlides();
-			},1000);
+		
 
 
 		}
