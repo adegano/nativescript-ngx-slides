@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewEncapsulation, ChangeDetectorRef, OnDestroy, forwardRef, ViewChild, ContentChildren, ElementRef, QueryList, Input, Output, EventEmitter } from '@angular/core';
+import { Component,OnChanges, SimpleChanges, SimpleChange, OnInit, AfterViewInit, ViewEncapsulation, ChangeDetectorRef, OnDestroy, forwardRef, ViewChild, ContentChildren, ElementRef, QueryList, Input, Output, EventEmitter } from '@angular/core';
 
 import { SlideComponent } from '../slide/slide.component';
 import * as gestures from 'tns-core-modules/ui/gestures';
@@ -9,6 +9,7 @@ import * as app from 'tns-core-modules/application';
 import { AbsoluteLayout } from 'tns-core-modules/ui/layouts/absolute-layout';
 import { StackLayout } from 'tns-core-modules/ui/layouts/stack-layout';
 import { Label } from 'tns-core-modules/ui/label';
+import {isNullOrUndefined} from "tns-core-modules/utils/types";
 
 export interface IIndicators {
 	active: boolean;
@@ -49,10 +50,11 @@ enum cancellationReason {
 	encapsulation: ViewEncapsulation.None
 })
 
-export class SlidesComponent implements OnInit {
+export class SlidesComponent implements OnChanges, OnInit {
 
 	@ContentChildren(forwardRef(() => SlideComponent)) slides: QueryList<SlideComponent>;
 	@ViewChild('footer') footer: ElementRef;
+	@Input('slidesLength') slidesLength: number;
 	@Input('pageWidth') pageWidth: number;
 	@Input('pageHeight') pageHeight: number;
 	@Input('footerMarginTop') footerMarginTop: number;
@@ -71,7 +73,7 @@ export class SlidesComponent implements OnInit {
 	indicators: IIndicators[];
 	currentSlide: ISlideMap;
 	_slideMap: ISlideMap[];
-
+	initialized: boolean = false;
 	currentScale = 1;
 	currentDeltaX = 0;
 	currentDeltaY = 0;
@@ -87,6 +89,13 @@ export class SlidesComponent implements OnInit {
 		this.indicators = [];
 	}
 
+	ngOnChanges(changes: SimpleChanges){
+		console.log('cambio');
+		const slidesLength: SimpleChange = changes.slidesLength;
+		this.initializeSlides();
+
+	}
+
 	ngOnInit() {
 
 		this.loop = this.loop ? this.loop : false;
@@ -99,10 +108,24 @@ export class SlidesComponent implements OnInit {
 	}
 
 	ngAfterViewInit() {
+		console.log('actualiza?');
+		//this.initializeSlides();
 		this.initializeSlides();
+    	this.slides.changes.subscribe(() => {
+    	console.log('actualizaer');
+   		this.initializeSlides();
+    });
+
 	}
 
+
+
 	initializeSlides(){
+		if (isNullOrUndefined(this.slides) || this.slides.length == 0 ) {
+		  return;
+	  }
+	  console.log('initializeSlides');
+	  console.log(this.slides.length);
 		// loop through slides and setup height and widith
 		this.slides.forEach((slide: SlideComponent) => {
 			AbsoluteLayout.setLeft(slide.layout, this.pageWidth);
@@ -239,7 +262,12 @@ export class SlidesComponent implements OnInit {
 
 		if (this.currentSlide.index === this.slides.length - 1) {
 			this.finished.next(null);
-			this.initializeSlides();
+			setTimeout(()=> {
+
+				this.initializeSlides();
+			},1000);
+
+
 		}
 	}
 
