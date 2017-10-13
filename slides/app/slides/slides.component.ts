@@ -16,7 +16,7 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import {SlideComponent} from './slide.component';
+import {SlideComponent} from '../slide/slide.component';
 import * as gestures from 'ui/gestures';
 import * as platform from 'platform';
 import * as AnimationModule from 'ui/animation';
