@@ -99,6 +99,10 @@ export class SlidesComponent implements OnInit {
 	}
 
 	ngAfterViewInit() {
+		this.initializeSlides();
+	}
+
+	initializeSlides(){
 		// loop through slides and setup height and widith
 		this.slides.forEach((slide: SlideComponent) => {
 			AbsoluteLayout.setLeft(slide.layout, this.pageWidth);
@@ -235,6 +239,7 @@ export class SlidesComponent implements OnInit {
 
 		if (this.currentSlide.index === this.slides.length - 1) {
 			this.finished.next(null);
+			this.initializeSlides();
 		}
 	}
 
